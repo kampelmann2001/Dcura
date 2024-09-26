@@ -1,0 +1,37 @@
+# Konfigurationsdatei für das Skript
+# Format: mailX=..., passwortX=..., quellordnerX=..., dateinameX=..., branchX=...
+
+mail1=test@test.com
+passwort1=testtest1
+quellordner1=C:\dimakey_tmp\CELLADIMAKEY\789\temp\testDC\archive
+dateiname1=Trans*.dat
+branch1=galexis.com
+useorderreader1=0
+
+mail2=
+passwort2=testtest2
+quellordner2=%USERPROFILE%\Downloads
+dateiname2=*.xml
+branch2=example.com
+useorderreader2=0
+
+mail3=test3@test.com
+passwort3=testtest3
+quellordner3=P:\Arzt
+dateiname3=*.xml
+branch3=example.com
+useorderreader3=0
+
+mail4=test4@test.com
+passwort4=testtest4
+quellordner4=P:\Arzt
+dateiname4=*.xml
+branch4=example.com
+useorderreader4=0
+
+mail5=test5@test.com
+passwort5=testtest5
+quellordner5=%USERPROFILE%\Downloads
+dateiname5=*.dat
+branch5=example.com
+useorderreader5=0
