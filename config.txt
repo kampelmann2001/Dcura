@@ -1,11 +1,11 @@
 # Konfigurationsdatei für das Skript
 # Format: mailX=..., passwortX=..., quellordnerX=..., dateinameX=..., branchX=...
 
-mail1=test@test.com
+mail1=Kundennummer
 passwort1=testtest1
-quellordner1=C:\dimakey_tmp\CELLADIMAKEY\789\temp\testDC\archive
-dateiname1=Trans*.dat
-branch1=galexis.com
+quellordner1=P:\Arzt\Rezepte\OutBox
+dateiname1=*.xml
+branch1=https://ecarelink.ch/api/1.0/prescriptions/files/cluster-tec
 useorderreader1=0
 
 mail2=
