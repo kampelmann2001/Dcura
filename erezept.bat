@@ -7,7 +7,7 @@ set "configFile=config.txt"
 set "useorderreader=1"
 if not exist "%configFile%" (
     echo Konfigurationsdatei %configFile% nicht gefunden.
-	timeout /t -1
+                timeout /t -1
     exit /b 1
 )
 
@@ -43,35 +43,35 @@ if "!userChoice!"=="1" (
     set "quellordner=!quellordner1!"
     set "dateiname=!dateiname1!"
     set "branch=!branch1!"
-	set "useorderreader=!useorderreader1!"
+                set "useorderreader=!useorderreader1!"
 ) else if "!userChoice!"=="2" (
     set "mail=!mail2!"
     set "passwort=!passwort2!"
     set "quellordner=!quellordner2!"
     set "dateiname=!dateiname2!"
     set "branch=!branch2!"
-	set "useorderreader=!useorderreader2!"
+                set "useorderreader=!useorderreader2!"
 ) else if "!userChoice!"=="3" (
     set "mail=!mail3!"
     set "passwort=!passwort3!"
     set "quellordner=!quellordner3!"
     set "dateiname=!dateiname3!"
     set "branch=!branch3!"
-	set "useorderreader=!useorderreader3!"
+                set "useorderreader=!useorderreader3!"
 ) else if "!userChoice!"=="4" (
     set "mail=!mail4!"
     set "passwort=!passwort4!"
     set "quellordner=!quellordner4!"
     set "dateiname=!dateiname4!"
     set "branch=!branch4!"
-	set "useorderreader=!useorderreader4!"
+                set "useorderreader=!useorderreader4!"
 ) else if "!userChoice!"=="5" (
     set "mail=!mail5!"
     set "passwort=!passwort5!"
     set "quellordner=!quellordner5!"
     set "dateiname=!dateiname5!"
     set "branch=!branch5!"
-	set "useorderreader=!useorderreader5!"
+                set "useorderreader=!useorderreader5!"
 ) else (
     echo Ungueltige Auswahl. Skript wird beendet.
     exit /b 1
@@ -86,7 +86,7 @@ echo Branch: !branch!
 REM Definiere die Quell- und Zielordner sowie den Dateinamen
 set "ProgrammPfad=C:\Program Files (x86)\OrderReader\OrderReader.exe"
 set "Zielordner=%~dp0"
-set "Link=https://dispocura.!branch!/app#/orders"
+set "Link=https://ecarelink.ch/app#/orders"
 set "Datei=!Zielordner!!Dateiname!"
 
 REM Setze den Ordnerpfad relativ zum Speicherort des Skripts
@@ -124,11 +124,11 @@ REM Entferne Leerzeichen aus dem Dateinamen
         set "newFileName=!origFileName: =!"
         
         echo Bereinigter Dateiname: !newFileName!
-		ren "%%f" "!newFileName!"
+                               ren "%%f" "!newFileName!"
      ) else (
-		echo keine datei zum bereinigen
-	)
-	)
+                               echo keine datei zum bereinigen
+                )
+                )
 
 
 :progcheck
@@ -146,15 +146,15 @@ if exist "!ProgrammPfad!" (
 
 REM Senden des XML-Inhalts im Body mit Content-Type application/xml
 for %%f in (!Zielordner!!Dateiname!) do (
-	
+                
     echo Sende Datei: %%f
-    curl -F file=@%%f https://dispocura.!branch!/api/1.0/orders/igm-3 -u !mail!:!passwort! -w %%{http_code} -o !ResponseFile! -s > !StatusFile!
-	
-	REM timeout /t -1    
-	for /f "delims=" %%a in ('type "!ResponseFile!"') do (
+    curl -F file=@%%f !branch! -u !mail!:!passwort! -w %%{http_code} -o !ResponseFile! -s > !StatusFile!
+                
+                REM timeout /t -1    
+                for /f "delims=" %%a in ('type "!ResponseFile!"') do (
     set "Antwort=%%a"
-	)
-	REM timeout /t -1
+                )
+                REM timeout /t -1
     REM Lese den HTTP-Statuscode aus der Datei
     set /p status=<"!StatusFile!"
     echo HTTP Status: !status!
@@ -166,13 +166,10 @@ for %%f in (!Zielordner!!Dateiname!) do (
         REM Lese den Inhalt der JSON-Antwort und extrahiere die Referenznummer
         for /f "tokens=2 delims=#" %%a in ('findstr /C:"Versand: #" "!ResponseFile!"') do set "referenz=%%a"
         
-        REM Nur die Zahlen extrahieren (Entfernen von nicht-numerischen Zeichen)
-        for /f "delims=}" %%b in ("!referenz!") do set "referenz=%%b"
-        set "referenz=!referenz:~0,-1!"
         echo Referenznummer: !referenz!
 
         REM Füge die Referenznummer zum Link hinzu
-        set "Link=https://dispocura.!branch!/app#/orders/!referenz!"
+        set "Link=https://ecarelink.ch/app#/orders/"
 
         REM Öffne den aktualisierten Link im Browser
         echo Öffne Link: !Link!
@@ -215,7 +212,7 @@ if exist "!Datei!" (
 cls
 if defined referenz ( 
     echo Bestellnummer: !referenz!
-	del !ResponseFile!
+                del !ResponseFile!
     del !StatusFile!
     timeout /t 4
 ) else (
