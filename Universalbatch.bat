@@ -16,7 +16,11 @@ for /f "delims=" %%a in (%configFile%) do (
     set "line=%%a"
     if "!line!" neq "" if "!line:~0,1!" neq "#" (
         set "line=!line: =!"
-        for /f "tokens=1,2 delims==" %%b in ("!line!") do set "%%b=%%c"
+        for /f "tokens=1,2 delims==" %%b in ("!line!") do (
+            set "%%b=%%c"
+            REM Lasse den call-Befehl die Variablen wie %userprofile% auswerten
+            call set "%%b=!%%b!"
+        )
     )
 )
 
@@ -41,6 +45,8 @@ if "!userChoice!"=="1" (
     set "mail=!mail1!"
     set "passwort=!passwort1!"
     set "quellordner=!quellordner1!"
+	echo %quellordner1%
+	REM timeout /t -1
     set "dateiname=!dateiname1!"
     set "branch=!branch1!"
 	set "useorderreader=!useorderreader1!"
@@ -106,10 +112,10 @@ echo Response-Verzeichnis: !ResponseFolder!
 
 REM Überprüfen, ob Dateien im Quellordner existieren und kopieren oder überspringen
 for %%f in (!Quellordner!\!Dateiname!) do (
-    if exist "%%f" (
+    if exist %%f (
         echo Datei gefunden: %%f
         move /Y "%%f" "!Zielordner!"
-        echo Datei %%f wurde nach "!Zielordner!" verschoben.
+        echo Datei "%%f" wurde nach "!Zielordner!" verschoben.
     ) else (
         echo Keine Dateien gefunden, die dem Muster !Dateiname! entsprechen. Programm wird geschlossen.
         timeout /t 10
@@ -118,7 +124,7 @@ for %%f in (!Quellordner!\!Dateiname!) do (
 )
 
 for %%f in (!Zielordner!!Dateiname!) do (
-    if exist "%%f" (
+    if exist %%f (
 REM Entferne Leerzeichen aus dem Dateinamen
         set "origFileName=%%~nxf"
         set "newFileName=!origFileName: =!"
@@ -148,13 +154,13 @@ REM Senden des XML-Inhalts im Body mit Content-Type application/xml
 for %%f in (!Zielordner!!Dateiname!) do (
 	
     echo Sende Datei: %%f
-    curl -F file=@%%f https://dispocura.!branch!/api/1.0/orders/igm-3 -u !mail!:!passwort! -w %%{http_code} -o !ResponseFile! -s > !StatusFile!
+    curl -F file=@"%%f" "https://dispocura.!branch!/api/1.0/orders/igm-3" -u !mail!:!passwort! -w %%{http_code} -o "!ResponseFile!" -s > "!StatusFile!"
 	
 	REM timeout /t -1    
 	for /f "delims=" %%a in ('type "!ResponseFile!"') do (
     set "Antwort=%%a"
 	)
-	REM timeout /t -1
+	timeout /t -1
     REM Lese den HTTP-Statuscode aus der Datei
     set /p status=<"!StatusFile!"
     echo HTTP Status: !status!
@@ -215,15 +221,15 @@ if exist "!Datei!" (
 cls
 if defined referenz ( 
     echo Bestellnummer: !referenz!
-	del !ResponseFile!
-    del !StatusFile!
+REM	del !ResponseFile!
+REM    del !StatusFile!
     timeout /t 4
 ) else (
     echo !Antwort!
     
     REM Lösche die alten Dateien
-    del !ResponseFile!
-    del !StatusFile!
+   REM del !ResponseFile!
+   REM del !StatusFile!
     
     REM Erstelle eine zufällige Zahl für den Dateinamen
     set /a randNum=%random%
