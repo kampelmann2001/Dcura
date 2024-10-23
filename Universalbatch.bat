@@ -45,7 +45,7 @@ if "!userChoice!"=="1" (
     set "mail=!mail1!"
     set "passwort=!passwort1!"
     set "quellordner=!quellordner1!"
-	echo %quellordner1%
+	REM echo %quellordner1%
 	REM timeout /t -1
     set "dateiname=!dateiname1!"
     set "branch=!branch1!"
@@ -151,16 +151,16 @@ if exist "!ProgrammPfad!" (
 :Curl
 
 REM Senden des XML-Inhalts im Body mit Content-Type application/xml
-for %%f in (!Zielordner!!Dateiname!) do (
+for %%f in ("!Zielordner!!Dateiname!") do (
 	
-    echo Sende Datei: %%f
+    echo Sende Datei: "%%f"
     curl -F file=@"%%f" "https://dispocura.!branch!/api/1.0/orders/igm-3" -u !mail!:!passwort! -w %%{http_code} -o "!ResponseFile!" -s > "!StatusFile!"
 	
 	REM timeout /t -1    
 	for /f "delims=" %%a in ('type "!ResponseFile!"') do (
     set "Antwort=%%a"
 	)
-	timeout /t -1
+    REM timeout /t -1
     REM Lese den HTTP-Statuscode aus der Datei
     set /p status=<"!StatusFile!"
     echo HTTP Status: !status!
@@ -221,15 +221,15 @@ if exist "!Datei!" (
 cls
 if defined referenz ( 
     echo Bestellnummer: !referenz!
-REM	del !ResponseFile!
-REM    del !StatusFile!
+	del !ResponseFile!
+    del !StatusFile!
     timeout /t 4
 ) else (
     echo !Antwort!
     
     REM Lösche die alten Dateien
-   REM del !ResponseFile!
-   REM del !StatusFile!
+    del !ResponseFile!
+    del !StatusFile!
     
     REM Erstelle eine zufällige Zahl für den Dateinamen
     set /a randNum=%random%
