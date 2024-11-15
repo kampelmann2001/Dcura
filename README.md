@@ -32,6 +32,7 @@ echo Wähle den Benutzer:
    ```
    mail1=test@test.com
    passwort1=testtest1
+   b641=baseausdruckderzugangsdatenerstelltvonencobat
    quellordner1=C:\einquellordner
    dateiname1=Trans*.dat
    branch1=galexis.com
