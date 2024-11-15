@@ -1,5 +1,5 @@
 @echo off
-
+pushd %~dp0
 Setlocal EnableDelayedExpansion
 
 REM Konfigurationsdatei einlesen
@@ -41,18 +41,19 @@ if defined mail2 (
 )
 
 REM E-Mail und Passwort basierend auf der Auswahl setzen
+set "b64mail="
 if "!userChoice!"=="1" (
     set "mail=!mail1!"
     set "passwort=!passwort1!"
+    set "b64mail=!b641!"
     set "quellordner=!quellordner1!"
-	REM echo %quellordner1%
-	REM timeout /t -1
     set "dateiname=!dateiname1!"
     set "branch=!branch1!"
 	set "useorderreader=!useorderreader1!"
 ) else if "!userChoice!"=="2" (
     set "mail=!mail2!"
     set "passwort=!passwort2!"
+    set "b64mail=!b642!"
     set "quellordner=!quellordner2!"
     set "dateiname=!dateiname2!"
     set "branch=!branch2!"
@@ -60,6 +61,7 @@ if "!userChoice!"=="1" (
 ) else if "!userChoice!"=="3" (
     set "mail=!mail3!"
     set "passwort=!passwort3!"
+    set "b64mail=!b643!"
     set "quellordner=!quellordner3!"
     set "dateiname=!dateiname3!"
     set "branch=!branch3!"
@@ -67,6 +69,7 @@ if "!userChoice!"=="1" (
 ) else if "!userChoice!"=="4" (
     set "mail=!mail4!"
     set "passwort=!passwort4!"
+    set "b64mail=!b644!"
     set "quellordner=!quellordner4!"
     set "dateiname=!dateiname4!"
     set "branch=!branch4!"
@@ -74,6 +77,7 @@ if "!userChoice!"=="1" (
 ) else if "!userChoice!"=="5" (
     set "mail=!mail5!"
     set "passwort=!passwort5!"
+    set "b64mail=!b645!"
     set "quellordner=!quellordner5!"
     set "dateiname=!dateiname5!"
     set "branch=!branch5!"
@@ -150,17 +154,29 @@ if exist "!ProgrammPfad!" (
 )
 :Curl
 
+REM Prüfe, ob b64mail vorhanden ist und dekodiere oder verwende direkt
+if defined b64mail (
+    echo Verwende Base64-Dekodierung
+    set "authHeader=Authorization: Basic !b64mail!"
+) else (
+    echo Verwende normale E-Mail und Passwort
+    set "authCredentials=!mail!:!passwort!"
+)
+
 REM Senden des XML-Inhalts im Body mit Content-Type application/xml
 for %%f in ("!Zielordner!!Dateiname!") do (
-	
     echo Sende Datei: "%%f"
-    curl -F file=@"%%f" "https://dispocura.!branch!/api/1.0/orders/igm-3" -u !mail!:!passwort! -w %%{http_code} -o "!ResponseFile!" -s > "!StatusFile!"
+    
+    if defined b64mail (
+        REM Base64-kodierte Authentifizierung
+		echo !authHeader! 
+		timeout /t -1
+        curl -F "file=@%%f" "https://dispocura.!branch!/api/1.0/orders/igm-3" -H "!authHeader!" -w "%%{http_code}" -o "!ResponseFile!" -s > "!StatusFile!"
+    ) else (
+        REM Standard-Authentifizierung mit E-Mail und Passwort
+        curl -F file=@"%%f" "https://dispocura.!branch!/api/1.0/orders/igm-3" -u !authCredentials! -w %%{http_code} -o "!ResponseFile!" -s > "!StatusFile!"
+    )
 	
-	REM timeout /t -1    
-	for /f "delims=" %%a in ('type "!ResponseFile!"') do (
-    set "Antwort=%%a"
-	)
-    REM timeout /t -1
     REM Lese den HTTP-Statuscode aus der Datei
     set /p status=<"!StatusFile!"
     echo HTTP Status: !status!
@@ -188,11 +204,12 @@ for %%f in ("!Zielordner!!Dateiname!") do (
         del "%%f"
     ) else (
         echo Fehler beim Hochladen der Datei %%f. Status: !status!
+		timeout /t 10
     )
-
 )
 
 goto ende
+
 
 :pruefe
 
@@ -218,26 +235,7 @@ if exist "!Datei!" (
 )
 
 :ende
+popd
 cls
-if defined referenz ( 
-    echo Bestellnummer: !referenz!
-	del !ResponseFile!
-    del !StatusFile!
-    timeout /t 4
-) else (
-    echo !Antwort!
-    
-    REM Lösche die alten Dateien
-    del !ResponseFile!
-    del !StatusFile!
-    
-    REM Erstelle eine zufällige Zahl für den Dateinamen
-    set /a randNum=%random%
-    for %%F in ("!Datei!") do set "Dateiendung=%%~xF"
-    
-    REM Kopiere die Datei mit einem zufälligen Namen in den ResponseFolder
-    copy !Datei! !ResponseFolder!\failed_Transfer_!randNum!!Dateiendung!
-    timeout /t -1
-)
-Endlocal
+endlocal
 exit
